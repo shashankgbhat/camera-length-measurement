@@ -4,8 +4,14 @@ const VideoFeed = ({ onVideoClick }) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
+    const constraints = {
+      video: {
+        facingMode: { exact: "environment" },
+      },
+    };
+
     navigator.mediaDevices
-      .getUserMedia({ video: true })
+      .getUserMedia(constraints)
       .then((stream) => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
