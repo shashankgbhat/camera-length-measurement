@@ -1,44 +1,38 @@
-import React, { useState } from "react";
+import React, { useRef } from "react";
 import VideoFeed from "./components/VideoFeed";
-import PointsOverlay from "./components/PointsOverlay";
-import DistanceDisplay from "./components/DistanceDisplay";
 
 function App() {
-  const [points, setPoints] = useState([]);
-  const [distance, setDistance] = useState(null);
+  const canvasRef = useRef(null);
 
-  const handleVideoClick = (e) => {
-    const videoRect = e.target.getBoundingClientRect();
-    const x = e.clientX - videoRect.left;
-    const y = e.clientY - videoRect.top;
+  const captureImage = () => {
+    const videoElement = document.querySelector("video");
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
 
-    const newPoints = [...points, { x, y }];
-    setPoints(newPoints);
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
 
-    if (newPoints.length === 2) {
-      const [p1, p2] = newPoints;
-      const dist = Math.sqrt(
-        Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)
-      );
-      setDistance(dist.toFixed(2)); // Round to 2 decimal places
-    }
-  };
+    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-  const resetMeasurement = () => {
-    setPoints([]);
-    setDistance(null);
+    const dataUrl = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "captured-image.png";
+    link.click();
   };
 
   return (
     <div style={{ textAlign: "center" }}>
-      <h1>Measurement App</h1>
+      <h1>Camera Capture App</h1>
       <div style={{ position: "relative", display: "inline-block" }}>
-        <VideoFeed onVideoClick={handleVideoClick} />
-        <PointsOverlay points={points} />
+        <VideoFeed />
       </div>
-      {distance && (
-        <DistanceDisplay distance={distance} onReset={resetMeasurement} />
-      )}
+
+      <button onClick={captureImage} style={{ marginTop: "20px" }}>
+        Capture Image
+      </button>
+
+      <canvas ref={canvasRef} style={{ display: "none" }} />
     </div>
   );
 }
