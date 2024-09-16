@@ -3,7 +3,25 @@ import VideoFeed from "./VideoFeed";
 
 const CameraCapture = () => {
   const [capturedImage, setCapturedImage] = useState(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const canvasRef = useRef(null);
+
+  const PPI = 429;
+  const FOV = 77;
+  const distance = 100;
+
+  const calculateRealWorldDimensions = (pixelWidth, pixelHeight) => {
+    // calc width and height in cm
+    const fovRadians = (FOV * Math.PI) / 180;
+    const realWorldWidth = 2 * distance * Math.tan(fovRadians / 2);
+
+    const cmPerPixel = realWorldWidth / 1080;
+
+    const objectWidth = pixelWidth * cmPerPixel;
+    const objectHeight = pixelHeight * cmPerPixel;
+
+    return { width: objectWidth, height: objectHeight };
+  };
 
   const captureImage = () => {
     const videoElement = document.querySelector("video");
@@ -17,17 +35,12 @@ const CameraCapture = () => {
 
     const dataUrl = canvas.toDataURL("image/png");
     setCapturedImage(dataUrl);
-  };
 
-  const downloadImage = () => {
-    const link = document.createElement("a");
-    link.href = capturedImage;
-    link.download = "captured-image.png";
-    link.click();
-  };
+    const pixelWidth = canvas.width;
+    const pixelHeight = canvas.height;
 
-  const resetCapture = () => {
-    setCapturedImage(null);
+    const realDimensions = calculateRealWorldDimensions(pixelWidth, pixelHeight);
+    setDimensions(realDimensions);
   };
 
   return (
@@ -43,10 +56,9 @@ const CameraCapture = () => {
               style={{ width: "100%", maxWidth: "500px", marginBottom: "20px" }}
             />
             <div>
-              <button onClick={downloadImage} style={{ marginRight: "10px" }}>
-                Download Image
-              </button>
-              <button onClick={resetCapture}>Retake</button>
+              <p>Object Width: {dimensions.width.toFixed(2)} cm</p>
+              <p>Object Height: {dimensions.height.toFixed(2)} cm</p>
+              <button onClick={() => setCapturedImage(null)}>Retake</button>
             </div>
           </div>
         )}
@@ -54,7 +66,7 @@ const CameraCapture = () => {
 
       {!capturedImage && (
         <button onClick={captureImage} style={{ marginTop: "20px" }}>
-          Capture Image
+          Capture Image & Measure
         </button>
       )}
 
