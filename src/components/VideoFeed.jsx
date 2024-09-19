@@ -1,11 +1,13 @@
 import React, { useRef, useEffect } from "react";
 
-const VideoFeed = () => {
+const VideoFeed = ({ onVideoClick }) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
     const constraints = {
-      video: { facingMode: { exact: "environment" } },
+      video: {
+        facingMode: { exact: "environment" },
+      },
     };
 
     navigator.mediaDevices
@@ -26,6 +28,7 @@ const VideoFeed = () => {
       style={{ width: "100%", maxWidth: "500px" }}
       autoPlay
       playsInline
+      onClick={onVideoClick}
     />
   );
 };
