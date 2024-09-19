@@ -19,9 +19,9 @@ const CameraCapture = () => {
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
 
-  const PPI = 429; // pixels per inch
-  const FOV = 77; // field of view in degrees
-  const distance = 100; // distance in cm (1 meter)
+  const PPI = 429;
+  const FOV = 77;
+  const distance = 100;
 
   const calculateRealWorldDimensions = (pixelWidth, pixelHeight) => {
     const fovRadians = (FOV * Math.PI) / 180;
@@ -54,7 +54,6 @@ const CameraCapture = () => {
     );
     setDimensions(realDimensions);
 
-    // Initialize the bounding box at the center of the image
     const initWidth = pixelWidth * 0.5;
     const initHeight = pixelHeight * 0.5;
     const initX1 = (pixelWidth - initWidth) / 2;
@@ -138,7 +137,6 @@ const CameraCapture = () => {
               }}
             />
 
-            {/* Bounding box */}
             <div
               style={{
                 position: "absolute",
@@ -150,7 +148,6 @@ const CameraCapture = () => {
               }}
             />
 
-            {/* Corner handles */}
             {["top-left", "top-right", "bottom-left", "bottom-right"].map(
               (corner) => {
                 const isTop = corner.includes("top");
