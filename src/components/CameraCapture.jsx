@@ -145,6 +145,7 @@ const CameraCapture = () => {
                 top: `${Math.min(selectionBox.y1, selectionBox.y2)}px`,
                 width: `${Math.abs(selectionBox.x2 - selectionBox.x1)}px`,
                 height: `${Math.abs(selectionBox.y2 - selectionBox.y1)}px`,
+                transition: "width 0.1s, height 0.1s, left 0.1s, top 0.1s",
               }}
             />
 
@@ -162,12 +163,15 @@ const CameraCapture = () => {
                     onTouchStart={(e) => handleDragStart(e, corner)}
                     style={{
                       position: "absolute",
-                      width: "10px",
-                      height: "10px",
-                      backgroundColor: "blue",
+                      width: "15px",
+                      height: "15px",
+                      backgroundColor:
+                        draggingCorner === corner ? "green" : "blue",
+                      borderRadius: "50%",
                       left: `${x - 5}px`,
                       top: `${y - 5}px`,
                       cursor: "pointer",
+                      transition: "left 0.1s, top 0.1s", 
                     }}
                   />
                 );
