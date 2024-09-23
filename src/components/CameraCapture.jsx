@@ -15,6 +15,7 @@ const CameraCapture = () => {
     y2: 0,
   });
   const [draggingCorner, setDraggingCorner] = useState(null);
+  const [showDimensions, setShowDimensions] = useState(false);
 
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
@@ -22,6 +23,8 @@ const CameraCapture = () => {
   const PPI = 429;
   const FOV = 77;
   const distance = 100;
+
+  const CORNER_HITBOX_SIZE = 20;
 
   const calculateRealWorldDimensions = (pixelWidth, pixelHeight) => {
     const fovRadians = (FOV * Math.PI) / 180;
@@ -61,6 +64,7 @@ const CameraCapture = () => {
     const initX2 = initX1 + initWidth;
     const initY2 = initY1 + initHeight;
     setSelectionBox({ x1: initX1, y1: initY1, x2: initX2, y2: initY2 });
+    setShowDimensions(false);
   };
 
   const handleDragStart = (e, corner) => {
@@ -68,8 +72,26 @@ const CameraCapture = () => {
     setDraggingCorner(corner);
   };
 
+  const isNearCorner = (x, y, box) => {
+    const corners = [
+      { x: box.x1, y: box.y1, name: "top-left" },
+      { x: box.x2, y: box.y1, name: "top-right" },
+      { x: box.x1, y: box.y2, name: "bottom-left" },
+      { x: box.x2, y: box.y2, name: "bottom-right" },
+    ];
+
+    for (const corner of corners) {
+      const dx = Math.abs(corner.x - x);
+      const dy = Math.abs(corner.y - y);
+      if (dx <= CORNER_HITBOX_SIZE && dy <= CORNER_HITBOX_SIZE) {
+        return corner.name;
+      }
+    }
+    return null;
+  };
+
   const handleDragMove = (e) => {
-    if (!draggingCorner) return;
+    if (!draggingCorner || !imgRef.current) return;
     const rect = imgRef.current.getBoundingClientRect();
     const touch = e.touches ? e.touches[0] : e;
     const x = touch.clientX - rect.left;
@@ -77,6 +99,7 @@ const CameraCapture = () => {
 
     setSelectionBox((prevBox) => {
       let newBox = { ...prevBox };
+
       switch (draggingCorner) {
         case "top-left":
           newBox.x1 = x;
@@ -103,6 +126,26 @@ const CameraCapture = () => {
 
   const handleDragEnd = () => {
     setDraggingCorner(null);
+  };
+
+  const handleMouseMove = (e) => {
+    const rect = imgRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (!draggingCorner) {
+      const nearCorner = isNearCorner(x, y, selectionBox);
+      if (nearCorner) {
+        e.target.style.cursor = "pointer";
+      } else {
+        e.target.style.cursor = "default";
+      }
+    } else {
+      handleDragMove(e);
+    }
+  };
+
+  const handleCalculateDimensions = () => {
     const objectWidthPixels = Math.abs(selectionBox.x2 - selectionBox.x1);
     const objectHeightPixels = Math.abs(selectionBox.y2 - selectionBox.y1);
     const objectRealDimensions = calculateRealWorldDimensions(
@@ -110,6 +153,7 @@ const CameraCapture = () => {
       objectHeightPixels
     );
     setObjectDimensions(objectRealDimensions);
+    setShowDimensions(true);
   };
 
   return (
@@ -122,7 +166,7 @@ const CameraCapture = () => {
             style={{ position: "relative", display: "inline-block" }}
             onTouchMove={handleDragMove}
             onTouchEnd={handleDragEnd}
-            onMouseMove={handleDragMove}
+            onMouseMove={handleMouseMove}
             onMouseUp={handleDragEnd}
           >
             <img
@@ -163,32 +207,74 @@ const CameraCapture = () => {
                     onTouchStart={(e) => handleDragStart(e, corner)}
                     style={{
                       position: "absolute",
-                      width: "15px",
-                      height: "15px",
+                      width: `${CORNER_HITBOX_SIZE}px`,
+                      height: `${CORNER_HITBOX_SIZE}px`,
                       backgroundColor:
                         draggingCorner === corner ? "green" : "blue",
                       borderRadius: "50%",
-                      left: `${x - 5}px`,
-                      top: `${y - 5}px`,
+                      left: `${x - CORNER_HITBOX_SIZE / 2}px`,
+                      top: `${y - CORNER_HITBOX_SIZE / 2}px`,
                       cursor: "pointer",
-                      transition: "left 0.1s, top 0.1s", 
+                      transition: "left 0.1s, top 0.1s",
                     }}
                   />
                 );
               }
             )}
 
-            <div>
-              <p>Object Width: {objectDimensions.width.toFixed(2)} cm</p>
-              <p>Object Height: {objectDimensions.height.toFixed(2)} cm</p>
-              <button onClick={() => setCapturedImage(null)}>Retake</button>
-            </div>
+            <button
+              onClick={handleCalculateDimensions}
+              style={{
+                marginTop: "20px",
+                padding: "10px 20px",
+                backgroundColor: "#007bff",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              Calculate Height and Width
+            </button>
+
+            {showDimensions && (
+              <div style={{ marginTop: "20px" }}>
+                <p>Object Width: {objectDimensions.width.toFixed(2)} cm</p>
+                <p>Object Height: {objectDimensions.height.toFixed(2)} cm</p>
+              </div>
+            )}
+
+            <button
+              onClick={() => setCapturedImage(null)}
+              style={{
+                marginTop: "10px",
+                padding: "10px 20px",
+                backgroundColor: "#dc3545",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              Retake
+            </button>
           </div>
         )}
       </div>
 
       {!capturedImage && (
-        <button onClick={captureImage} style={{ marginTop: "20px" }}>
+        <button
+          onClick={captureImage}
+          style={{
+            marginTop: "20px",
+            padding: "10px 20px",
+            backgroundColor: "#28a745",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
           Capture Image & Measure
         </button>
       )}
