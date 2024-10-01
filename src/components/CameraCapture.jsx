@@ -16,7 +16,7 @@ const CameraCapture = () => {
   });
   const [draggingCorner, setDraggingCorner] = useState(null);
   const [showDimensions, setShowDimensions] = useState(false);
-  const [distance, setDistance] = useState(100);
+  const [distance, setDistance] = useState(3.28); // Default to 1 meter (3.28 feet)
   const [distanceError, setDistanceError] = useState(false);
 
   const canvasRef = useRef(null);
@@ -28,12 +28,22 @@ const CameraCapture = () => {
   const CORNER_HITBOX_SIZE = 20;
 
   const calculateRealWorldDimensions = (pixelWidth, pixelHeight, distance) => {
+    // Convert distance from feet to centimeters (1 foot = 30.48 cm)
+    const distanceInCm = distance * 30.48;
+
     const fovRadians = (FOV * Math.PI) / 180;
-    const realWorldWidth = 2 * distance * Math.tan(fovRadians / 2);
+    const realWorldWidth = 2 * distanceInCm * Math.tan(fovRadians / 2);
     const cmPerPixel = realWorldWidth / 1080;
     const objectWidth = pixelWidth * cmPerPixel;
     const objectHeight = pixelHeight * cmPerPixel;
     return { width: objectWidth, height: objectHeight };
+  };
+
+  const convertCmToFeetInches = (cm) => {
+    const totalInches = cm / 2.54; // Convert cm to inches
+    const feet = Math.floor(totalInches / 12); // Get the number of feet
+    const inches = totalInches % 12; // Get the remaining inches
+    return { feet, inches };
   };
 
   const captureImage = () => {
@@ -167,6 +177,7 @@ const CameraCapture = () => {
       objectHeightPixels,
       distance
     );
+
     setObjectDimensions(objectRealDimensions);
     setShowDimensions(true);
   };
@@ -254,8 +265,22 @@ const CameraCapture = () => {
 
             {showDimensions && (
               <div style={{ marginTop: "20px" }}>
-                <p>Object Width: {objectDimensions.width.toFixed(2)} cm</p>
-                <p>Object Height: {objectDimensions.height.toFixed(2)} cm</p>
+                <p>
+                  Object Width:{" "}
+                  {convertCmToFeetInches(objectDimensions.width).feet} ft{" "}
+                  {convertCmToFeetInches(objectDimensions.width).inches.toFixed(
+                    2
+                  )}{" "}
+                  in
+                </p>
+                <p>
+                  Object Height:{" "}
+                  {convertCmToFeetInches(objectDimensions.height).feet} ft{" "}
+                  {convertCmToFeetInches(objectDimensions.height).inches.toFixed(
+                    2
+                  )}{" "}
+                  in
+                </p>
               </div>
             )}
 
@@ -279,7 +304,7 @@ const CameraCapture = () => {
 
       <div style={{ marginTop: "20px" }}>
         <label>
-          Enter distance to object (cm):
+          Enter distance to object (feet):
           <input
             type="number"
             value={distance}
