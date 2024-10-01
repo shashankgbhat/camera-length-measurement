@@ -16,26 +16,44 @@ const CameraCapture = () => {
   });
   const [draggingCorner, setDraggingCorner] = useState(null);
   const [showDimensions, setShowDimensions] = useState(false);
+  const [distance, setDistance] = useState(3.28); // Default to 1 meter (3.28 feet)
+  const [distanceError, setDistanceError] = useState(false);
 
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
 
   const PPI = 429;
   const FOV = 77;
-  const distance = 100;
 
   const CORNER_HITBOX_SIZE = 20;
 
-  const calculateRealWorldDimensions = (pixelWidth, pixelHeight) => {
+  const calculateRealWorldDimensions = (pixelWidth, pixelHeight, distance) => {
+    // Convert distance from feet to centimeters (1 foot = 30.48 cm)
+    const distanceInCm = distance * 30.48;
+
     const fovRadians = (FOV * Math.PI) / 180;
-    const realWorldWidth = 2 * distance * Math.tan(fovRadians / 2);
+    const realWorldWidth = 2 * distanceInCm * Math.tan(fovRadians / 2);
     const cmPerPixel = realWorldWidth / 1080;
     const objectWidth = pixelWidth * cmPerPixel;
     const objectHeight = pixelHeight * cmPerPixel;
     return { width: objectWidth, height: objectHeight };
   };
 
+  const convertCmToFeetInches = (cm) => {
+    const totalInches = cm / 2.54; // Convert cm to inches
+    const feet = Math.floor(totalInches / 12); // Get the number of feet
+    const inches = totalInches % 12; // Get the remaining inches
+    return { feet, inches };
+  };
+
   const captureImage = () => {
+    if (distance <= 0) {
+      setDistanceError(true);
+      return;
+    }
+
+    setDistanceError(false);
+
     const videoElement = document.querySelector("video");
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
@@ -53,7 +71,8 @@ const CameraCapture = () => {
 
     const realDimensions = calculateRealWorldDimensions(
       pixelWidth,
-      pixelHeight
+      pixelHeight,
+      distance
     );
     setDimensions(realDimensions);
 
@@ -146,12 +165,19 @@ const CameraCapture = () => {
   };
 
   const handleCalculateDimensions = () => {
+    if (distance <= 0) {
+      setDistanceError(true);
+      return;
+    }
+
     const objectWidthPixels = Math.abs(selectionBox.x2 - selectionBox.x1);
     const objectHeightPixels = Math.abs(selectionBox.y2 - selectionBox.y1);
     const objectRealDimensions = calculateRealWorldDimensions(
       objectWidthPixels,
-      objectHeightPixels
+      objectHeightPixels,
+      distance
     );
+
     setObjectDimensions(objectRealDimensions);
     setShowDimensions(true);
   };
@@ -239,8 +265,22 @@ const CameraCapture = () => {
 
             {showDimensions && (
               <div style={{ marginTop: "20px" }}>
-                <p>Object Width: {objectDimensions.width.toFixed(2)} cm</p>
-                <p>Object Height: {objectDimensions.height.toFixed(2)} cm</p>
+                <p>
+                  Object Width:{" "}
+                  {convertCmToFeetInches(objectDimensions.width).feet} ft{" "}
+                  {convertCmToFeetInches(objectDimensions.width).inches.toFixed(
+                    2
+                  )}{" "}
+                  in
+                </p>
+                <p>
+                  Object Height:{" "}
+                  {convertCmToFeetInches(objectDimensions.height).feet} ft{" "}
+                  {convertCmToFeetInches(objectDimensions.height).inches.toFixed(
+                    2
+                  )}{" "}
+                  in
+                </p>
               </div>
             )}
 
@@ -259,6 +299,28 @@ const CameraCapture = () => {
               Retake
             </button>
           </div>
+        )}
+      </div>
+
+      <div style={{ marginTop: "20px" }}>
+        <label>
+          Enter distance to object (feet):
+          <input
+            type="number"
+            value={distance}
+            onChange={(e) => setDistance(Number(e.target.value))}
+            style={{
+              marginLeft: "10px",
+              padding: "5px",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+            }}
+          />
+        </label>
+        {distanceError && (
+          <p style={{ color: "red", marginTop: "10px" }}>
+            Please enter a valid positive distance.
+          </p>
         )}
       </div>
 
