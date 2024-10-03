@@ -28,7 +28,6 @@ const CameraCapture = () => {
   const CORNER_HITBOX_SIZE = 20;
 
   const calculateRealWorldDimensions = (pixelWidth, pixelHeight, distance) => {
-    // Convert distance from feet to centimeters (1 foot = 30.48 cm)
     const distanceInCm = distance * 30.48;
 
     const fovRadians = (FOV * Math.PI) / 180;
@@ -40,9 +39,9 @@ const CameraCapture = () => {
   };
 
   const convertCmToFeetInches = (cm) => {
-    const totalInches = cm / 2.54; // Convert cm to inches
-    const feet = Math.floor(totalInches / 12); // Get the number of feet
-    const inches = totalInches % 12; // Get the remaining inches
+    const totalInches = cm / 2.54;
+    const feet = Math.floor(totalInches / 12);
+    const inches = totalInches % 12;
     return { feet, inches };
   };
 
@@ -183,13 +182,13 @@ const CameraCapture = () => {
   };
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <div style={{ position: "relative", display: "inline-block" }}>
+    <div className="camera-capture-container">
+      <div className="video-wrapper">
         {!capturedImage && <VideoFeed />}
 
         {capturedImage && (
           <div
-            style={{ position: "relative", display: "inline-block" }}
+            className="captured-image-wrapper"
             onTouchMove={handleDragMove}
             onTouchEnd={handleDragEnd}
             onMouseMove={handleMouseMove}
@@ -199,26 +198,17 @@ const CameraCapture = () => {
               ref={imgRef}
               src={capturedImage}
               alt="Captured Preview"
-              style={{
-                width: "100%",
-                maxWidth: "500px",
-                marginBottom: "20px",
-                position: "relative",
-              }}
+              className="captured-image"
             />
-
             <div
+              className="selection-box"
               style={{
-                position: "absolute",
-                border: "2px dashed red",
                 left: `${Math.min(selectionBox.x1, selectionBox.x2)}px`,
                 top: `${Math.min(selectionBox.y1, selectionBox.y2)}px`,
                 width: `${Math.abs(selectionBox.x2 - selectionBox.x1)}px`,
                 height: `${Math.abs(selectionBox.y2 - selectionBox.y1)}px`,
-                transition: "width 0.1s, height 0.1s, left 0.1s, top 0.1s",
               }}
             />
-
             {["top-left", "top-right", "bottom-left", "bottom-right"].map(
               (corner) => {
                 const isTop = corner.includes("top");
@@ -231,40 +221,31 @@ const CameraCapture = () => {
                     key={corner}
                     onMouseDown={(e) => handleDragStart(e, corner)}
                     onTouchStart={(e) => handleDragStart(e, corner)}
+                    className={`corner-hitbox ${
+                      draggingCorner === corner ? "green-corner" : "blue-corner"
+                    }`}
                     style={{
-                      position: "absolute",
-                      width: `${CORNER_HITBOX_SIZE}px`,
-                      height: `${CORNER_HITBOX_SIZE}px`,
-                      backgroundColor:
-                        draggingCorner === corner ? "green" : "blue",
-                      borderRadius: "50%",
                       left: `${x - CORNER_HITBOX_SIZE / 2}px`,
                       top: `${y - CORNER_HITBOX_SIZE / 2}px`,
-                      cursor: "pointer",
-                      transition: "left 0.1s, top 0.1s",
                     }}
                   />
                 );
               }
             )}
-
             <button
               onClick={handleCalculateDimensions}
-              style={{
-                marginTop: "20px",
-                padding: "10px 20px",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
+              className="calculate-button"
             >
               Calculate Height and Width
             </button>
-
+            <button
+              onClick={() => setCapturedImage(null)}
+              className="retake-button"
+            >
+              Retake
+            </button>
             {showDimensions && (
-              <div style={{ marginTop: "20px" }}>
+              <div className="dimension-info">
                 <p>
                   Object Width:{" "}
                   {convertCmToFeetInches(objectDimensions.width).feet} ft{" "}
@@ -276,67 +257,35 @@ const CameraCapture = () => {
                 <p>
                   Object Height:{" "}
                   {convertCmToFeetInches(objectDimensions.height).feet} ft{" "}
-                  {convertCmToFeetInches(objectDimensions.height).inches.toFixed(
-                    2
-                  )}{" "}
+                  {convertCmToFeetInches(
+                    objectDimensions.height
+                  ).inches.toFixed(2)}{" "}
                   in
                 </p>
               </div>
             )}
-
-            <button
-              onClick={() => setCapturedImage(null)}
-              style={{
-                marginTop: "10px",
-                padding: "10px 20px",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              Retake
-            </button>
           </div>
         )}
       </div>
-
-      <div style={{ marginTop: "20px" }}>
+      <div className="distance-input-container">
         <label>
           Enter distance to object (feet):
           <input
             type="number"
             value={distance}
             onChange={(e) => setDistance(Number(e.target.value))}
-            style={{
-              marginLeft: "10px",
-              padding: "5px",
-              borderRadius: "5px",
-              border: "1px solid #ccc",
-            }}
+            className="distance-input"
           />
         </label>
         {distanceError && (
-          <p style={{ color: "red", marginTop: "10px" }}>
+          <p className="error-message">
             Please enter a valid positive distance.
           </p>
         )}
       </div>
 
       {!capturedImage && (
-        <button
-          onClick={captureImage}
-          style={{
-            marginTop: "20px",
-            padding: "10px 20px",
-            backgroundColor: "#28a745",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
+        <button onClick={captureImage} className="capture-button">
           Capture Image & Measure
         </button>
       )}
