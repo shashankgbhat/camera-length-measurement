@@ -1,4 +1,4 @@
-.App-logo {
+/* .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
@@ -68,10 +68,6 @@ video {
   display: inline-block;
 }
 
-.captured-image-wrapper button {
-  margin: 0px 12px;
-}
-
 .captured-image {
   width: 84%;
   max-width: 500px;
@@ -107,15 +103,23 @@ video {
 .capture-button {
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #1A4594;
+  background-color: green;
   color: white;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
+  width: 84% !important;
+ }
+
+.calculate-button {
+  background-color: #1A4594;
 }
 
 .retake-button {
   background-color: #dc3545;
+}
+
+.image-button {
+  display: flex;
 }
 
 .dimension-info {
@@ -142,4 +146,46 @@ video {
 .error-message {
   color: red;
   margin-top: 10px;
+} */
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  z-index: 10;
+  padding: 10px;
+}
+
+.body {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-top: 60px;
+  padding-bottom: 80px;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  z-index: 10;
+  padding: 10px;
+}
+
+.footer button {
+  border-radius: 0;
 }

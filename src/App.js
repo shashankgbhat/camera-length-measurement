@@ -5,7 +5,6 @@ import "./App.css";
 function App() {
   return (
     <div className="app-container">
-      <h1>Camera Measure App</h1>
       <CameraCapture />
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import VideoFeed from "./VideoFeed";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const CameraCapture = () => {
   const [capturedImage, setCapturedImage] = useState(null);
@@ -16,7 +17,7 @@ const CameraCapture = () => {
   });
   const [draggingCorner, setDraggingCorner] = useState(null);
   const [showDimensions, setShowDimensions] = useState(false);
-  const [distance, setDistance] = useState(3.28); // Default to 1 meter (3.28 feet)
+  const [distance, setDistance] = useState(3.28);
   const [distanceError, setDistanceError] = useState(false);
 
   const canvasRef = useRef(null);
@@ -24,12 +25,10 @@ const CameraCapture = () => {
 
   const PPI = 429;
   const FOV = 77;
-
   const CORNER_HITBOX_SIZE = 20;
 
   const calculateRealWorldDimensions = (pixelWidth, pixelHeight, distance) => {
     const distanceInCm = distance * 30.48;
-
     const fovRadians = (FOV * Math.PI) / 180;
     const realWorldWidth = 2 * distanceInCm * Math.tan(fovRadians / 2);
     const cmPerPixel = realWorldWidth / 1080;
@@ -50,7 +49,6 @@ const CameraCapture = () => {
       setDistanceError(true);
       return;
     }
-
     setDistanceError(false);
 
     const videoElement = document.querySelector("video");
@@ -61,7 +59,6 @@ const CameraCapture = () => {
     canvas.height = videoElement.videoHeight;
 
     context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-
     const dataUrl = canvas.toDataURL("image/png");
     setCapturedImage(dataUrl);
 
@@ -182,13 +179,37 @@ const CameraCapture = () => {
   };
 
   return (
-    <div className="camera-capture-container">
-      <div className="video-wrapper">
-        {!capturedImage && <VideoFeed />}
+    <div className="container">
+      <div className="header text-center my-4">
+        <h1>Camera Measure App</h1>
+      </div>
+
+      <div className="body">
+        {!capturedImage && (
+          <div className="distance-input-container mb-3">
+            <VideoFeed />
+            <div className="input-group">
+              <label className="input-group-text">
+                Enter distance to object (feet):
+              </label>
+              <input
+                type="number"
+                value={distance}
+                onChange={(e) => setDistance(Number(e.target.value))}
+                className="form-control"
+              />
+            </div>
+            {distanceError && (
+              <p className="text-danger mt-2">
+                Please enter a valid positive distance.
+              </p>
+            )}
+          </div>
+        )}
 
         {capturedImage && (
           <div
-            className="captured-image-wrapper"
+            className="captured-image-wrapper position-relative"
             onTouchMove={handleDragMove}
             onTouchEnd={handleDragEnd}
             onMouseMove={handleMouseMove}
@@ -198,10 +219,10 @@ const CameraCapture = () => {
               ref={imgRef}
               src={capturedImage}
               alt="Captured Preview"
-              className="captured-image"
+              className="img-fluid"
             />
             <div
-              className="selection-box"
+              className="selection-box border border-danger position-absolute"
               style={{
                 left: `${Math.min(selectionBox.x1, selectionBox.x2)}px`,
                 top: `${Math.min(selectionBox.y1, selectionBox.y2)}px`,
@@ -221,31 +242,23 @@ const CameraCapture = () => {
                     key={corner}
                     onMouseDown={(e) => handleDragStart(e, corner)}
                     onTouchStart={(e) => handleDragStart(e, corner)}
-                    className={`corner-hitbox ${
-                      draggingCorner === corner ? "green-corner" : "blue-corner"
+                    className={`corner-hitbox position-absolute rounded-circle ${
+                      draggingCorner === corner ? "bg-success" : "bg-primary"
                     }`}
                     style={{
                       left: `${x - CORNER_HITBOX_SIZE / 2}px`,
                       top: `${y - CORNER_HITBOX_SIZE / 2}px`,
+                      width: `${CORNER_HITBOX_SIZE}px`,
+                      height: `${CORNER_HITBOX_SIZE}px`,
                     }}
                   />
                 );
               }
             )}
-            <button
-              onClick={handleCalculateDimensions}
-              className="calculate-button"
-            >
-              Calculate Height and Width
-            </button>
-            <button
-              onClick={() => setCapturedImage(null)}
-              className="retake-button"
-            >
-              Retake
-            </button>
+
             {showDimensions && (
-              <div className="dimension-info">
+              <div className="dimension-info text-center mt-3">
+                <p>Distance to Object: {distance} ft</p>
                 <p>
                   Object Width:{" "}
                   {convertCmToFeetInches(objectDimensions.width).feet} ft{" "}
@@ -267,28 +280,30 @@ const CameraCapture = () => {
           </div>
         )}
       </div>
-      <div className="distance-input-container">
-        <label>
-          Enter distance to object (feet):
-          <input
-            type="number"
-            value={distance}
-            onChange={(e) => setDistance(Number(e.target.value))}
-            className="distance-input"
-          />
-        </label>
-        {distanceError && (
-          <p className="error-message">
-            Please enter a valid positive distance.
-          </p>
+
+      {/* Footer */}
+      <div className="footer text-center my-4">
+        {capturedImage ? (
+          <div className="d-flex justify-content-around">
+            <button
+              onClick={handleCalculateDimensions}
+              className="btn btn-primary"
+            >
+              Calculate Height and Width
+            </button>
+            <button
+              onClick={() => setCapturedImage(null)}
+              className="btn btn-danger"
+            >
+              Retake
+            </button>
+          </div>
+        ) : (
+          <button onClick={captureImage} className="btn btn-success mt-4">
+            Capture Image
+          </button>
         )}
       </div>
-
-      {!capturedImage && (
-        <button onClick={captureImage} className="capture-button">
-          Capture Image & Measure
-        </button>
-      )}
 
       <canvas ref={canvasRef} style={{ display: "none" }} />
     </div>
