@@ -287,19 +287,19 @@ const CameraCapture = () => {
           <div className="d-flex justify-content-around">
             <button
               onClick={handleCalculateDimensions}
-              className="btn btn-primary"
+              className="btn btn-primary col-8"
             >
               Calculate Height and Width
             </button>
             <button
               onClick={() => setCapturedImage(null)}
-              className="btn btn-danger"
+              className="btn btn-danger col-4"
             >
               Retake
             </button>
           </div>
         ) : (
-          <button onClick={captureImage} className="btn btn-success mt-4">
+          <button onClick={captureImage} className="btn btn-success mt-4 col-12">
             Capture Image
           </button>
         )}
