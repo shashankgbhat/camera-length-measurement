@@ -1,10 +1,10 @@
 import React from "react";
 import CameraCapture from "./components/CameraCapture";
+import "./App.css";
 
 function App() {
   return (
-    <div style={{ textAlign: "center" }}>
-      <h1>Camera Capture App</h1>
+    <div className="app-container">
       <CameraCapture />
     </div>
   );

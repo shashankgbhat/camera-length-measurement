@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 
-const VideoFeed = ({ onVideoClick }) => {
+const VideoFeed = () => {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -28,7 +28,6 @@ const VideoFeed = ({ onVideoClick }) => {
       style={{ width: "100%", maxWidth: "500px" }}
       autoPlay
       playsInline
-      onClick={onVideoClick}
     />
   );
 };
