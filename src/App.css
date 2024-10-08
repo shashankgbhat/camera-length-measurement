@@ -151,12 +151,14 @@ video {
 html, body {
   height: 100%;
   margin: 0;
+  overflow: hidden;
 }
 
 .container {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow: hidden;
 }
 
 .header {
@@ -171,7 +173,7 @@ html, body {
 
 .body {
   flex-grow: 1;
-  overflow-y: auto;
+  overflow: hidden;
   padding-top: 60px;
   padding-bottom: 80px;
 }
@@ -188,4 +190,8 @@ html, body {
 
 .footer button {
   border-radius: 0;
+}
+
+.dimension-info {
+  overflow-y: auto;
 }
