@@ -255,10 +255,12 @@ const CameraCapture = () => {
                 );
               }
             )}
+            <div className="dimension-info text-center mt-3">
+              <p>Distance to Object: {distance} ft</p>
+            </div>
 
             {showDimensions && (
-              <div className="dimension-info text-center mt-3">
-                <p>Distance to Object: {distance} ft</p>
+              <div className="dimension-info text-center">
                 <p>
                   Object Width:{" "}
                   {convertCmToFeetInches(objectDimensions.width).feet} ft{" "}
@@ -282,7 +284,7 @@ const CameraCapture = () => {
       </div>
 
       {/* Footer */}
-      <div className="footer text-center my-4">
+      <div className="footer text-center my-1">
         {capturedImage ? (
           <div className="d-flex justify-content-around">
             <button
@@ -299,7 +301,10 @@ const CameraCapture = () => {
             </button>
           </div>
         ) : (
-          <button onClick={captureImage} className="btn btn-success mt-4 col-12">
+          <button
+            onClick={captureImage}
+            className="btn btn-success mt-4 col-12"
+          >
             Capture Image
           </button>
         )}
