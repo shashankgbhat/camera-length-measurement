@@ -37,11 +37,8 @@ const CameraCapture = () => {
     return { width: objectWidth, height: objectHeight };
   };
 
-  const convertCmToFeetInches = (cm) => {
-    const totalInches = cm / 2.54;
-    const feet = Math.floor(totalInches / 12);
-    const inches = totalInches % 12;
-    return { feet, inches };
+  const convertCmToInches = (cm) => {
+    return cm / 2.54;
   };
 
   const captureImage = () => {
@@ -255,25 +252,19 @@ const CameraCapture = () => {
                 );
               }
             )}
+            <div className="dimension-info text-center mt-3">
+              <p>Distance to Object: {distance} ft</p>
+            </div>
 
             {showDimensions && (
-              <div className="dimension-info text-center mt-3">
-                <p>Distance to Object: {distance} ft</p>
+              <div className="dimension-info text-center">
                 <p>
                   Object Width:{" "}
-                  {convertCmToFeetInches(objectDimensions.width).feet} ft{" "}
-                  {convertCmToFeetInches(objectDimensions.width).inches.toFixed(
-                    2
-                  )}{" "}
-                  in
+                  {convertCmToInches(objectDimensions.width).toFixed(2)} in
                 </p>
                 <p>
                   Object Height:{" "}
-                  {convertCmToFeetInches(objectDimensions.height).feet} ft{" "}
-                  {convertCmToFeetInches(
-                    objectDimensions.height
-                  ).inches.toFixed(2)}{" "}
-                  in
+                  {convertCmToInches(objectDimensions.height).toFixed(2)} in
                 </p>
               </div>
             )}
@@ -282,24 +273,27 @@ const CameraCapture = () => {
       </div>
 
       {/* Footer */}
-      <div className="footer text-center my-4">
+      <div className="footer text-center my-1">
         {capturedImage ? (
           <div className="d-flex justify-content-around">
             <button
               onClick={handleCalculateDimensions}
               className="btn btn-primary col-8"
             >
-              Calculate Height and Width
+              Calculate Dimensions
             </button>
             <button
               onClick={() => setCapturedImage(null)}
               className="btn btn-danger col-4"
             >
-              Retake
+              Retake Image
             </button>
           </div>
         ) : (
-          <button onClick={captureImage} className="btn btn-success mt-4 col-12">
+          <button
+            onClick={captureImage}
+            className="btn btn-success mt-4 col-12"
+          >
             Capture Image
           </button>
         )}
