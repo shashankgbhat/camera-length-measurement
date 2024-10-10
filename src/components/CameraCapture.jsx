@@ -1,8 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import VideoFeed from "./VideoFeed";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const CameraCapture = () => {
+  const [isCompatible, setIsCompatible] = useState(true);
   const [capturedImage, setCapturedImage] = useState(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [objectDimensions, setObjectDimensions] = useState({
@@ -19,13 +20,30 @@ const CameraCapture = () => {
   const [showDimensions, setShowDimensions] = useState(false);
   const [distance, setDistance] = useState(3.28);
   const [distanceError, setDistanceError] = useState(false);
-
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
 
   const PPI = 429;
   const FOV = 77;
   const CORNER_HITBOX_SIZE = 20;
+
+  useEffect(() => {
+    const constraints = {
+      video: {
+        facingMode: { exact: "environment" },
+      },
+    };
+
+    navigator.mediaDevices
+      .getUserMedia(constraints)
+      .then((stream) => {
+        setIsCompatible(true);
+      })
+      .catch((err) => {
+        console.error("Error accessing the rear camera: ", err);
+        setIsCompatible(false);
+      });
+  }, []);
 
   const calculateRealWorldDimensions = (pixelWidth, pixelHeight, distance) => {
     const distanceInCm = distance * 30.48;
@@ -175,6 +193,14 @@ const CameraCapture = () => {
     setShowDimensions(true);
   };
 
+  if (!isCompatible) {
+    return (
+      <div className="incompatible-message">
+        <h1>Program not compatible with device. Switch to mobile.</h1>
+      </div>
+    );
+  }
+
   return (
     <div className="container">
       <div className="header text-center my-4">
@@ -272,7 +298,6 @@ const CameraCapture = () => {
         )}
       </div>
 
-      {/* Footer */}
       <div className="footer text-center my-1">
         {capturedImage ? (
           <div className="d-flex justify-content-around">
