@@ -195,8 +195,8 @@ const CameraCapture = () => {
 
   if (!isCompatible) {
     return (
-      <div className="incompatible-message">
-        <h1>Program not compatible with device. Switch to mobile.</h1>
+      <div className="incompatible-message text-center">
+        <p>Program not compatible with device. Switch to mobile.</p>
       </div>
     );
   }
