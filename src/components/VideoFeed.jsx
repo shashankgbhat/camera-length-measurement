@@ -16,50 +16,29 @@ const VideoFeed = ({ onVideoClick }) => {
       .then((stream) => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          setIsCameraActive(true); // Camera is active
+          setIsCameraActive(true);
         }
       })
       .catch((err) => {
         console.error("Error accessing the camera: ", err);
-        setIsCameraActive(false); // Camera failed
+        setIsCameraActive(false);
       });
   }, []);
 
   return (
-    <div style={{ position: "relative", width: "100%", maxWidth: "500px" }}>
-      {/* Video feed */}
+    <div className="video-container">
       <video
         ref={videoRef}
-        style={{ width: "100%", height: "auto" }}
+        className="video-feed"
         autoPlay
         playsInline
         onClick={onVideoClick}
       />
 
-      {/* Conditionally render grid overlay if camera is active */}
       {isCameraActive && (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "99%",
-            pointerEvents: "none", // Ensure clicks pass through to the video
-            display: "grid",
-            gridTemplateRows: "1fr 1fr 1fr",
-            gridTemplateColumns: "1fr 1fr 1fr",
-            zIndex: 1, // Ensure the grid stays above the video
-            boxSizing: "border-box", // Make sure padding and borders are included in the element's total width and height
-          }}
-        >
+        <div className="grid-overlay">
           {[...Array(9)].map((_, index) => (
-            <div
-              key={index}
-              style={{
-                border: "2px solid black", // Black grid lines
-              }}
-            />
+            <div key={index} className="grid-cell" />
           ))}
         </div>
       )}
