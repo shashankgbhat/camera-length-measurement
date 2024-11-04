@@ -20,11 +20,12 @@ const CameraCapture = () => {
   const [showDimensions, setShowDimensions] = useState(false);
   const [distance, setDistance] = useState(3.28);
   const [distanceError, setDistanceError] = useState(false);
+  const [fov, setFov] = useState(77); // New state for FOV
+  const [fovError, setFovError] = useState(false);
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
 
   const PPI = 429;
-  const FOV = 77;
   const CORNER_HITBOX_SIZE = 20;
 
   useEffect(() => {
@@ -47,7 +48,7 @@ const CameraCapture = () => {
 
   const calculateRealWorldDimensions = (pixelWidth, pixelHeight, distance) => {
     const distanceInCm = distance * 30.48;
-    const fovRadians = (FOV * Math.PI) / 180;
+    const fovRadians = (fov * Math.PI) / 180;
     const realWorldWidth = 2 * distanceInCm * Math.tan(fovRadians / 2);
     const cmPerPixel = realWorldWidth / 1080;
     const objectWidth = pixelWidth * cmPerPixel;
@@ -64,7 +65,12 @@ const CameraCapture = () => {
       setDistanceError(true);
       return;
     }
+    if (fov <= 0) {
+      setFovError(true);
+      return;
+    }
     setDistanceError(false);
+    setFovError(false);
 
     const videoElement = document.querySelector("video");
     const canvas = canvasRef.current;
@@ -180,6 +186,10 @@ const CameraCapture = () => {
       setDistanceError(true);
       return;
     }
+    if (fov <= 0) {
+      setFovError(true);
+      return;
+    }
 
     const objectWidthPixels = Math.abs(selectionBox.x2 - selectionBox.x1);
     const objectHeightPixels = Math.abs(selectionBox.y2 - selectionBox.y1);
@@ -211,7 +221,7 @@ const CameraCapture = () => {
         {!capturedImage && (
           <div className="distance-input-container mb-3">
             <VideoFeed />
-            <div className="input-group">
+            <div className="input-group mt-3">
               <label className="input-group-text">
                 Enter distance to object (feet):
               </label>
@@ -225,6 +235,22 @@ const CameraCapture = () => {
             {distanceError && (
               <p className="text-danger mt-2">
                 Please enter a valid positive distance.
+              </p>
+            )}
+            <div className="input-group mt-3">
+              <label className="input-group-text">
+                Enter Field of View (degrees):
+              </label>
+              <input
+                type="number"
+                value={fov}
+                onChange={(e) => setFov(Number(e.target.value))}
+                className="form-control"
+              />
+            </div>
+            {fovError && (
+              <p className="text-danger mt-2">
+                Please enter a valid positive FOV value.
               </p>
             )}
           </div>
