@@ -74,3 +74,22 @@ html, body {
 .grid-cell {
   border: 1px solid black;
 }
+
+.dashboard-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.whatsapp-section {
+  margin-top: 20px;
+}
+
+.input-group {
+  display: flex;
+  justify-content: center;
+}
+
+.input-group input {
+  max-width: 300px;
+  margin-right: 10px;
+}
